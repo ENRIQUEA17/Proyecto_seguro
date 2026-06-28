@@ -1,0 +1,38 @@
+name: Pipeline detección de fallos
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  test-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Instalar dependencias
+        run: |
+          pip install pytest
+
+      - name: Ejecutar pruebas
+        run: |
+          pytest --junitxml=report.xml
+
+      - name: Generar reporte automático
+        run: |
+          echo "REPORTE DEL PIPELINE" > reporte.txt
+          echo "Fecha: $(date)" >> reporte.txt
+          echo "Estado: pruebas ejecutadas correctamente" >> reporte.txt
+
+      - name: Subir reporte
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-pipeline
+          path: reporte.txt
